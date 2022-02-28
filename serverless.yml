@@ -1,0 +1,46 @@
+service: TransactionService
+
+provider:
+  name: aws
+  stage: transactions
+  runtime: nodejs12.x
+  profile: default
+  timeout: 30
+
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:*"
+        - "sqs:*"
+      Resource: "*"
+
+plugins:
+  - serverless-plugin-common-excludes
+  - serverless-plugin-include-dependencies
+functions:
+  createTransaction:
+    handler: createTransaction.createTransaction
+    name: CreateTransaction
+    memorySize: 512
+    events:
+      - http:
+            path: /
+            method: post
+            cors: true
+  getTransaction:
+    handler: getTransaction.getTransaction
+    name: GetTransaction
+    memorySize: 512
+    events:
+      - http:
+            path: /{transactionId}
+            method: get
+            cors: true
+            request: 
+              parameters: 
+                paths: 
+                  transactionId: true
+      - http:
+            path: /
+            method: get
+            cors: true
